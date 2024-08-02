@@ -9,7 +9,18 @@ A series of interesting and useful HTML wrappers that populate images, links, an
                 ["7", "bach guitar"],
                 ["8", "https://www.youtube.com/watch?v=33NQv3EX2QI"]
             ]);
-    
+
+
+
+13-queen_of_tears_youtube_embed.html : right and left arrow gets an embedded video with the link from Youtube
+
+15-peace_pad.html
+
+allows you load a .txt and gets read so for example lyrics.  
+
+
+
+In the folder: flashcards_html_js, you can upload a text file with a dictionary array and can download it too.  Allows for editting when browsing flashcards to set up an intelligent flashcard system.  Can copy and paste from Google sheets / Excel information that can become flashcards. 
 
 
 

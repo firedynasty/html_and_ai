@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .image-wrapper,
+        .video-wrapper,
+        .youtube-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .image-wrapper img,
+        .video-wrapper video,
+        .youtube-wrapper iframe {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+        }
+
+        .editable {
+            cursor: text;
+            background-color: #fff;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .navigation-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .navigation-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #embedYoutubeButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .file-input {
+            margin-bottom: 10px;
+        }
+
+        .content-area {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            /* Preserve formatting */
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="imageContainer">
+        <!-- Videos, Images, and editable text will be loaded here by JavaScript -->
+    </div>
+    <button id="embedYoutubeButton">Embed YouTube Video</button>
+    <div class="navigation-buttons">
+        <button id="prevButton">Previous</button>
+        <button id="nextButton">Next</button>
+    </div>
+    <div id="youtubeEmbedContainer" class="youtube-wrapper"></div>
+
+    <!-- New Section for Loading Text File Content -->
+    <h1>Load Text File Content</h1>
+    <div class="file-input-container">
+        <input type="file" id="fileInput" class="file-input" accept=".txt">
+        <button onclick="loadFile()" class="hidden">Load File</button>
+    </div>
+    <div id="contentArea" class="content-area">
+        <pre id="textContent"></pre>
+    </div>
+
+    <script>
+        const imageDictionary = new Map([
+            ["First", "Peace Pad (Central"],
+            ["1", "https://www.youtube.com/watch?v=yhFccHgf_FQ"],
+            ["2", "reckless love"],
+            ["3", "https://www.youtube.com/watch?v=Sc6SSHuZvQE"],
+            ["4", "peace pad(worship)"],
+            ["5", "https://www.youtube.com/watch?v=ged4PqO2FAU"],
+            ["6", "Firm Foundatin (maverick"],
+            ["7", "https://www.youtube.com/watch?v=fQmpf1e7Ov0"],
+            ["8", "Cece Winin"],
+            ["9", "https://www.youtube.com/watch?v=9sE5kEnitqE"]
+        ]);
+
+        const container = document.getElementById('imageContainer');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const embedButton = document.getElementById('embedYoutubeButton');
+        const youtubeEmbedContainer = document.getElementById('youtubeEmbedContainer');
+
+        let currentIndex = 0;
+        const entries = Array.from(imageDictionary.entries());
+
+        function getYouTubeEmbedUrl(url) {
+            try {
+                const videoId = url.includes('youtu.be') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1].split('&')[0];
+                return `https://www.youtube.com/embed/${videoId}`;
+            } catch (error) {
+                console.error('Invalid YouTube URL:', url);
+                return '';
+            }
+        }
+
+        function displayContent(index) {
+            // Clear existing content in the container
+            container.innerHTML = '';
+
+            // Get the current item
+            const [key, value] = entries[index];
+
+            // Create a wrapper div for the image/text and caption
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-wrapper';
+
+            if (value.endsWith('.png')) {
+                // Create the img element
+                const imgElement = document.createElement('img');
+                imgElement.src = value;
+                imgElement.alt = `Image ${key}`;
+                wrapper.appendChild(imgElement);
+            } else {
+                // Create a text content element and make it editable
+                const textContent = document.createElement('div');
+                textContent.className = 'text-content editable';
+                textContent.contentEditable = true;
+                textContent.textContent = value;
+                wrapper.appendChild(textContent);
+            }
+
+            // Create the caption element
+            const caption = document.createElement('div');
+            caption.className = 'caption';
+            caption.textContent = `Image ${key}`;
+
+            // Append caption to the wrapper
+            wrapper.appendChild(caption);
+
+            // Append the wrapper to the container
+            container.appendChild(wrapper);
+
+            // Store the current URL for embedding if it's a YouTube link
+            if (value.startsWith('https://') && (value.includes('youtube.com') || value.includes('youtu.be'))) {
+                embedButton.dataset.url = value;
+                embedButton.style.display = 'block';
+            } else {
+                embedButton.style.display = 'none';
+            }
+
+            // Update button states
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === entries.length - 1;
+        }
+
+        // Event listeners for the buttons
+        prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayContent(currentIndex);
+            }
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentIndex < entries.length - 1) {
+                currentIndex++;
+                displayContent(currentIndex);
+            }
+        });
+
+        // Event listener for the embed button
+        embedButton.addEventListener('click', () => {
+            const url = embedButton.dataset.url;
+            youtubeEmbedContainer.innerHTML = `<iframe src="${getYouTubeEmbedUrl(url)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+        });
+
+        // Initial display
+        displayContent(currentIndex);
+
+        // Function to set the document title to the name of the HTML file
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+
+        setDocumentTitle();
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.addEventListener("keydown", function (e) {
+                if (e.keyCode === 37) { // Left arrow key
+                    document.getElementById("prevButton").click();
+                    console.log('Left arrow pressed');
+                } else if (e.keyCode === 39) { // Right arrow key
+                    document.getElementById("nextButton").click();
+                    console.log('Right arrow pressed');
+                }
+            });
+        });
+
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            loadFile();
+        });
+
+
+        // Function to load the selected text file
+        function loadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const textContent = document.getElementById('textContent');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    textContent.textContent = e.target.result;
+                };
+
+                reader.onerror = function () {
+                    alert('An error occurred while reading the file.');
+                };
+
+                 reader.readAsText(file);
+            } else {
+                alert('Please select a file first.');
+            }
+        }
+          </script>
+</body>
+
+</html>
