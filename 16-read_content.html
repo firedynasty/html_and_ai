@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+        }
+
+        .editable {
+            cursor: text;
+            background-color: #fff;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .navigation-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .navigation-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+    
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .file-input {
+            margin-bottom: 10px;
+        }
+
+        .content-area {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            /* Preserve formatting */
+            width: 100%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+        }
+        
+    
+              /* Style for the navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+         .dropdown-container {
+            display: flex;
+            gap: 10px;
+            margin-left: auto; /* Pushes the dropdown to the right */
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="navbar">
+  <div class="dropdown-container">
+            <label for="audioControl">Audio Control:</label>
+            <select id="audioControl">
+                <option value="unmute">Unmute</option>
+                <option value="mute">Mute</option>
+            </select>
+        </div>
+        </div>
+      
+    <div class="container text-content">
+    <!-- Videos, Images, and editable text will be loaded here by JavaScript -->
+</div>
+
+
+
+    <select id="linesInContent">
+    </select>
+        <!-- Radio buttons for mute/unmute -->
+
+    <div class="navigation-buttons">
+        <button id="prevButton">Previous</button>
+        <button id="nextButton">Next</button>
+    </div>
+  
+    <button id="convertToArray">Convert to Array</button>
+
+    <!-- New Section for Loading Text File Content -->
+    <h1>Load Text File Content</h1>
+    <div class="file-input-container">
+        <input type="file" id="fileInput" class="file-input" accept=".txt">
+        <button onclick="loadFile()" class="hidden">Load File</button>
+    </div>
+    <div id="contentArea" class="content-area">
+        <pre id="textContent"></pre>
+    </div>
+
+    <!-- Navbar containing navigation buttons and radio buttons -->
+
+    <script>
+
+        let count_ = 1
+
+
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+       
+       
+       
+// Add event listener to the button
+nextButton.addEventListener('click', () => {
+    // Increment the counter
+    count_++;
+
+    // Check if count_ is within the bounds of the array
+    if (count_ < filteredArray.length) {
+        // Get the div element with the class 'container' and 'text-content'
+        let divElement = document.querySelector('.container.text-content');
+
+        // Clear the div content before appending
+        divElement.innerHTML = '';
+
+        // Get the text from the current element of filteredArray
+        let textToAppend = filteredArray[count_];
+
+        // Create a new text node with the array element
+        let textNode = document.createTextNode(textToAppend);
+
+        // Append the text node to the div element
+        divElement.appendChild(textNode);
+
+
+        let selectedValue = document.getElementById('audioControl').value;
+
+        if (selectedValue === 'unmute') {
+
+            // Text-to-speech
+            var selectedLanguage = 'en-US';
+            var selectedRate = 1; // You can set this to any value you prefer
+
+            // Create a SpeechSynthesisUtterance
+            var speech = new SpeechSynthesisUtterance();
+
+            // Set the selected language
+            speech.lang = selectedLanguage;
+            console.log(speech.lang);
+
+            // Set the selected rate
+            speech.rate = selectedRate;
+
+            // Set the text to be read
+            speech.text = textToAppend;
+
+            // Speak the text
+            window.speechSynthesis.speak(speech);
+    }
+        document['getElementById']('linesInContent')['value'] = count_.toString();
+
+    } else {
+        console.log("No more lines to append.");
+    }
+});
+
+
+// Event listener for the "Previous" button
+prevButton.addEventListener('click', () => {
+    // Decrement the counter, ensuring it doesn't go below 0
+    if (count_ > 0) {
+        count_--;
+        let divElement = document.querySelector('.container.text-content');
+
+        // Clear the div content before appending
+        divElement.innerHTML = '';
+
+        // Get the text from the current element of filteredArray
+        let textToAppend = filteredArray[count_];
+
+        // Create a new text node with the array element
+        let textNode = document.createTextNode(textToAppend);
+
+        // Append the text node to the div element
+        divElement.appendChild(textNode);
+        document['getElementById']('linesInContent')['value'] = count_.toString();
+
+        audioControlDropdown.value = 'mute';
+
+    } else {
+        console.log("Already at the beginning.");
+    }
+});
+
+
+        // Function to set the document title to the name of the HTML file
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+
+        setDocumentTitle();
+
+        document.addEventListener("DOMContentLoaded", function () {
+            document.body.addEventListener("keydown", function (e) {
+                if (e.keyCode === 37) { // Left arrow key
+                    document.getElementById("prevButton").click();
+                    console.log('Left arrow pressed');
+                } else if (e.keyCode === 39) { // Right arrow key
+                    document.getElementById("nextButton").click();
+                    console.log('Right arrow pressed');
+                }
+            });
+        });
+
+        // Function to simulate the button click
+        function simulateClick() {
+            // Using bracket notation to get the button element and click it
+            document['getElementById']('convertToArray').click();
+        }
+
+        // Set a timeout to click the button after 3 seconds (3000 milliseconds)
+
+        document.getElementById('fileInput').addEventListener('change', function() {
+            loadFile();
+            setTimeout(simulateClick, 1000);
+
+
+        });
+
+
+        // Function to load the selected text file
+        function loadFile() {
+            const fileInput = document.getElementById('fileInput');
+            const textContent = document.getElementById('textContent');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    textContent.textContent = e.target.result;
+                };
+
+                reader.onerror = function () {
+                    alert('An error occurred while reading the file.');
+                };
+
+                 reader.readAsText(file);
+            } else {
+                alert('Please select a file first.');
+            }
+        }
+
+var buttonConvert = document.getElementById('convertToArray');
+buttonConvert.addEventListener('click', function() {
+    // Get the content of the <pre> element
+    let preContent = document.getElementById('textContent').textContent;
+
+// Split the content by line breaks to create an array
+    linesArray = preContent.split('\n');
+
+// Display the array in the console (for demonstration purposes)
+
+    // Filter out lines with fewer than 20 characters
+    filteredArray = linesArray.filter(line => line.length >= 13);
+    console.log(filteredArray);
+    repopulateDropdown();
+
+// Now, linesArray contains each line as an element
+});
+
+function repopulateDropdown() {
+    // Get the dropdown element
+    let dropdown = document.getElementById('linesInContent');
+
+    // Clear existing options
+    dropdown.innerHTML = '';
+    let emptyOpt = document.createElement('option');
+    emptyOpt.value = '';
+    emptyOpt.textContent = 'Select to Retrieve';
+    dropdown.appendChild(emptyOpt);
+
+    // Loop over the filtered array
+    for (let i = 0; i < filteredArray.length; i++) {
+        // Create a new option element
+        let opt = document.createElement('option');
+
+        // Set the value and text of the option
+        opt.value = i + 1; // Using 1-based index for the value
+        opt.textContent = `Line ${i + 1}`; // Display "Line 1", "Line 2", etc.
+        dropdown.appendChild(opt);
+    }
+}
+
+
+  let linesInContent = document.getElementById('linesInContent');
+
+        // Add change event listener to the dropdown
+        linesInContent.addEventListener('change', (event) => {
+            // Update count_ to the selected value as an integer
+            count_ = parseInt(event.target.value, 10) - 1; // Subtract 1 for zero-based index
+
+        if (count_ < filteredArray.length) {
+            // Get the div element with the class 'container' and 'text-content'
+            let divElement = document.querySelector('.container.text-content');
+
+            // Clear the div content before appending
+            divElement.innerHTML = '';
+
+            // Get the text from the current element of filteredArray
+            let textToAppend = filteredArray[count_];
+
+            // Create a new text node with the array element
+            let textNode = document.createTextNode(textToAppend);
+
+            // Append the text node to the div element
+            divElement.appendChild(textNode);
+
+             let selectedValue = document.getElementById('audioControl').value;
+
+
+            if (selectedValue === 'unmute') {
+
+                // Text-to-speech
+                var selectedLanguage = 'en-US';
+                var selectedRate = 1; // You can set this to any value you prefer
+
+                // Create a SpeechSynthesisUtterance
+                var speech = new SpeechSynthesisUtterance();
+
+                // Set the selected language
+                speech.lang = selectedLanguage;
+                console.log(speech.lang);
+
+                // Set the selected rate
+                speech.rate = selectedRate;
+
+                // Set the text to be read
+                speech.text = textToAppend;
+
+                // Speak the text
+                window.speechSynthesis.speak(speech);
+
+            }
+            document['getElementById']('linesInContent')['value'] = count_.toString();
+
+        } else {
+        console.log("No more lines to append.");
+        }
+
+        });
+
+        let audioControlDropdown = document.getElementById('audioControl');
+
+
+        // Add event listener to the text-content div for toggle functionality
+        let textContentDiv = document.querySelector('.container.text-content');
+        textContentDiv.addEventListener('click', () => {
+            audioControlDropdown.value = 'unmute';
+            if (count_ < filteredArray.length) {
+            // Get the div element with the class 'container' and 'text-content'
+            let divElement = document.querySelector('.container.text-content');
+
+            // Clear the div content before appending
+            divElement.innerHTML = '';
+
+            // Get the text from the current element of filteredArray
+            let textToAppend = filteredArray[count_];
+
+            // Create a new text node with the array element
+            let textNode = document.createTextNode(textToAppend);
+
+            // Append the text node to the div element
+            divElement.appendChild(textNode);
+
+             let selectedValue = document.getElementById('audioControl').value;
+
+
+            if (selectedValue === 'unmute') {
+
+                // Text-to-speech
+                var selectedLanguage = 'en-US';
+                var selectedRate = 1; // You can set this to any value you prefer
+
+                // Create a SpeechSynthesisUtterance
+                var speech = new SpeechSynthesisUtterance();
+
+                // Set the selected language
+                speech.lang = selectedLanguage;
+                console.log(speech.lang);
+
+                // Set the selected rate
+                speech.rate = selectedRate;
+
+                // Set the text to be read
+                speech.text = textToAppend;
+
+                // Speak the text
+                window.speechSynthesis.speak(speech);
+
+            }
+        }
+
+            
+        });
+
+          </script>
+</body>
+
+</html>
