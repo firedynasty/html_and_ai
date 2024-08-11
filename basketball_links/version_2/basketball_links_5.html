@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            overflow: auto;
+        }
+        .navbar a {
+            float: left;
+            padding: 12px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .image-wrapper, .video-wrapper, .youtube-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-wrapper img, .video-wrapper video, .youtube-wrapper iframe {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .editable {
+            cursor: text;
+            background-color: #fff;
+        }
+        .highlight {
+            background-color: lightblue;
+        }
+        h1 {
+            color:white;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;basketball links</h1>
+    </div>
+
+    <div class="container" id="imageContainer">
+        <!-- Videos, Images, and editable text will be loaded here by JavaScript -->
+    </div>
+    
+    <button id="parseContent">Parse Content</button>
+
+    <div class="inner3">hello world</div>
+    <br><br><br>
+
+    <script>
+        const imageDictionary = new Map([
+            ["1", "back cut then alley hoop, https://youtu.be/J_gwhtU7FbU?si=A6t_zpIvxUGX3Q-e&t=184"],
+            ["2", "backward dribble shot, https://youtu.be/gG1xdukoq5M?si=R8Rw13eSReVMfsEI&t=530"],
+            ["3", "behind the back pass, https://youtu.be/J_gwhtU7FbU?si=V1eATI1FrhRm8kvo&t=190"],
+                        ["4", "cross, then shot: https://youtu.be/RWCgyreWyPY?si=pa9JfVgAfmffgaEY&t=613"],
+["5", "cut to the basket, https://youtu.be/gG1xdukoq5M?si=aXFWJjYg-Ez_NKqF&t=142"],
+["6", "different angle https://youtu.be/J_gwhtU7FbU?si=x912BhEWfspAani_&t=82"],
+["7", "dribble corner three, https://youtu.be/gG1xdukoq5M?si=Etcew-wB216B--D4&t=725"],
+["8", "dribble finish at the other side of the rim, https://youtu.be/gG1xdukoq5M?si=PwcsVVj5juxXrWuB&t=311"],
+["9", "dribble in, then shot https://youtu.be/gG1xdukoq5M?si=x3cqzIUusPvYXwvr&t=58"],
+["10", "dribble skip pull, then dribble left pause then go https://youtu.be/SF_sYCJt6Y0?si=ii5zFA5gg63dQLvy&t=147"],
+["11", "dribble spin cross, shot https://youtu.be/gG1xdukoq5M?si=T4b2_I97pJFRnABG&t=215"],
+["12", "dribble then shields ball with body, passes backwards, https://youtu.be/gG1xdukoq5M?si=vc4soxlGYcEZj87U&t=351"],
+["13", "dribble shot https://youtu.be/gG1xdukoq5M?si=_c1eYE0wFSlsSkCO&t=110"],
+["14", "drive back in then off the backboard https://youtu.be/_-L4_gMYuPs?si=_P2JIlQYDNm5JIcw&t=80"],
+["15", "drive in then kick back then fake, https://youtu.be/gG1xdukoq5M?si=lesowNjuS59TV8km&t=194"],
+["16", "from the corner play https://youtu.be/gG1xdukoq5M?si=ul-ShRs9lDTlRMzA&t=120"],
+["17", "great pull too left hand to right hand long shot https://youtu.be/SF_sYCJt6Y0?si=-hyJZ1zKMgPmsth4&t=127"],
+["18", "great pull, right handed shot with defender https://youtu.be/SF_sYCJt6Y0?si=ZoEg1pQsxpq_PEp2&t=110"],
+["19", "handles upcourt, if someone has their arms opem, use arm bar too https://x.com/SixthManJake/status/1816188144464847340"],
+["20", "handling https://www.youtube.com/watch?v=gjbFgZOMemI"],
+["21", "how to do a layup: https://youtu.be/gG1xdukoq5M?si=GjWAfbHWAMeyItex&t=320"],
+["22", "if a defender is too close then cross, and use an arm bar to separate yourself away"],
+["23", "incredible perimeter play dribble then pushes off, https://youtu.be/gG1xdukoq5M?si=4xpBzEJnrnD8y8Ix&t=355"],
+["24", "jump backwards to the backboard, https://youtu.be/SF_sYCJt6Y0?si=VlD_VqSLVw4x9N9a&t=137"],
+["25", "jumping backwards https://youtu.be/RWCgyreWyPY?si=iZt-KDPcCNkcpL92&t=243"],
+["26", "pass to jrue layup https://youtu.be/gG1xdukoq5M?si=BCH8dfMwejdH-IMP&t=37"],
+["27", "person is pressing spins the other way https://youtu.be/SF_sYCJt6Y0?si=FhMxHskj3ciPXKB1&t=139"],
+["28", "pikcing up the dribble, https://youtu.be/gG1xdukoq5M?si=gEccq6soJXobeNgK&t=325"],
+["29", "reach, then will blow by https://youtu.be/gG1xdukoq5M?si=Z9P3m3z_JkSv4nex&t=242"],
+["30", "reverse layup like where your forearm is when shooting then turn https://youtu.be/zkSHyZGWU-s?si=X0v7GKw1frTynhZA&t=75"],
+["31", "Shaq instinctual jumps then waits , https://youtu.be/J_gwhtU7FbU?si=X7dr419UOU35dc4-&t=146"],
+["32", "shooting, https://www.youtube.com/watch?v=ifc1Az_fslw"],
+["33", "shorts dont get embeded https://youtube.com/shorts/C0thmpqagzw?si=g7XKpWWLem8PuzE5"],
+["34", "step right, then step back left, https://youtu.be/gG1xdukoq5M?si=2pfejEITPe2Af3aU&t=389"],
+["35", "steph curry, https://youtu.be/gG1xdukoq5M?si=A318w5IfkpCxxKQs&t=500"],
+["36", "steve nash feed on the break, https://youtu.be/J_gwhtU7FbU?si=9IcS-c3y4ATLVyP3&t=114"],
+["37", "the best way to pick up your dribble is when you are dribbling and staying in the same position , or then use the float backwards to hesi then passs"],
+["38", "the gather step is when your foot is on the group after getting control of the ball"],
+["39", "this is how you turn, https://youtu.be/gG1xdukoq5M?si=u28sPd7Oe3LzOs78&t=272"],
+["40", "too far then shoot, https://youtu.be/gG1xdukoq5M?si=idZUVajUzA8eZ0SC&t=444"],
+["41", "transition three, https://youtu.be/gG1xdukoq5M?si=sAKHgBUv9pRK8a23&t=538"],
+["42", "trapped, https://youtu.be/gG1xdukoq5M?si=LWYVHL0pEzDv3Lfj&t=481"],
+["43", "undrafted rookie 8/22, however meets the ball jumps https://www.youtube.com/watch?v=s5nGKJDgOac"],
+["44", "verson backcut then hangs https://youtu.be/J_gwhtU7FbU?si=l0oXxLm_zYQxolUJ&t=69"],
+["45", "walk into shot https://youtu.be/RWCgyreWyPY?si=R2vME9Sx1cq3yG_F&t=540"],
+["46", "work on the floater footwork three bounches, gather step is when both feet are on the ground technically if he had one foot on the ground with both feet could still take one more step https://youtu.be/pO-0KWntUO8?si=bKPidH8TYUk-IQwM&t=118"]
+        ]);
+
+        const container = document.getElementById('imageContainer');
+        container.innerHTML = '';
+
+        function getYouTubeEmbedUrl(url) {
+            try {
+                const videoId = url.includes('youtu.be') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1].split('&')[0];
+                return `https://www.youtube.com/embed/${videoId}`;
+            } catch (error) {
+                console.error('Invalid YouTube URL:', url);
+                return '';
+            }
+        }
+
+        function createCaptionElement(key, url) {
+            const caption = document.createElement('div');
+            caption.className = 'caption';
+            if (url) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.textContent = `Item ${key}`;
+                caption.appendChild(link);
+            } else {
+                caption.textContent = `Item ${key}`;
+            }
+            return caption;
+        }
+
+        function highlightTextContent(element) {
+            // Toggle the highlight class
+            element.classList.toggle('highlight');
+        }
+
+        // Convert imageDictionary to an array and sort alphabetically by the second index
+        const sortedArray = Array.from(imageDictionary).sort((a, b) => {
+            const aValue = a[1].toLowerCase();
+            const bValue = b[1].toLowerCase();
+            return aValue.localeCompare(bValue);
+        });
+
+        sortedArray.forEach(([key, value]) => {
+            console.log(`Processing item ${key}: ${value}`);
+            const wrapper = document.createElement('div');
+            let url = null;
+
+            if (value.endsWith('.png')) {
+                wrapper.className = 'image-wrapper';
+                const imgElement = document.createElement('img');
+                imgElement.src = value;
+                imgElement.alt = `Image ${key}`;
+                wrapper.appendChild(imgElement);
+            } else if (value.startsWith('https://') && (value.includes('youtube.com') || value.includes('youtu.be'))) {
+                wrapper.className = 'youtube-wrapper';
+                const iframeElement = document.createElement('iframe');
+                iframeElement.src = getYouTubeEmbedUrl(value);
+                iframeElement.frameBorder = 0;
+                iframeElement.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframeElement.allowFullscreen = true;
+                wrapper.appendChild(iframeElement);
+                url = value;
+            } else {
+                wrapper.className = 'text-content editable';
+                const textContent = document.createElement('div');
+                textContent.contentEditable = true;
+                textContent.textContent = value;
+                wrapper.appendChild(textContent);
+                const urlMatch = value.match(/https?:\/\/[^\s]+/);
+                if (urlMatch) {
+                    url = urlMatch[0];
+                }
+            }
+
+            wrapper.onclick = () => highlightTextContent(wrapper); // Add click event to highlight text-content
+            const caption = createCaptionElement(key, url);
+            wrapper.appendChild(caption);
+            container.appendChild(wrapper);
+        });
+
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+        setDocumentTitle();
+
+        $("#parseContent").click(function() {
+            $(".inner3").empty();
+            let output = "";
+            $("#imageContainer .text-content").each(function(index) {
+                let text = $(this).find('div[contenteditable="true"]').text().trim();
+                let captionIndex = index + 1;
+                output += `["${captionIndex}", "${text}"],\n`;
+            });
+            // Remove the trailing comma and newline
+            output = output.slice(0, -2);
+            $(".inner3").append("<pre>" + output + "</pre><br>");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .navbar {
+            width: 100%;
+            background-color: #333;
+            overflow: auto;
+        }
+        .navbar a {
+            float: left;
+            padding: 12px;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .image-wrapper, .video-wrapper, .youtube-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-wrapper img, .video-wrapper video, .youtube-wrapper iframe {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+            cursor: pointer;
+            white-space: pre-wrap; /* Ensure that line breaks are rendered correctly */
+        }
+        h1 {
+            color:white;
+        }
+         .highlight {
+            background-color: lightblue;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="navbar">
+        <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;basketball links</h1>
+    </div>
+
+    <div class="container" id="imageContainer">
+        <!-- Videos, Images, and editable text will be loaded here by JavaScript -->
+    </div>
+    
+    <button id="parseContent">Parse Content</button>
+
+    <div class="inner3">hello world</div>
+    <br><br><br>
+
+    <script>
+        const imageDictionary = new Map([
+            ["1b", `armbar https://x.com/SixthManJake/status/1816188144464847340`],
+            ["2b", `dribble shot https://youtube.com/shorts/C0thmpqagzw?si=g7XKpWWLem8PuzE5`],
+            ["3b", `? https://youtu.be/gG1xdukoq5M
+
+0:37 pass to Jrue layup
+
+0:58 dribble then shoot
+
+1:50 dribble shot
+
+2:22 cut to the basket
+
+3:10 behind the back
+
+3:35 dribble spin cross
+
+4:02 reach then blow by you
+
+4:33 turn
+
+5:11 dribble to the other side then finish
+
+5:51 dribble shields ball
+
+6:29 step right, then step back left
+
+7:24 too far then shot
+
+8:01 trapped
+
+8:20 steph curry
+
+8:50 backward dribble shot 
+
+12:00 dribble corner three
+`],
+        ["4b", `handling https://www.youtube.com/watch?v=gjbFgZOMemI`],
+        ["5", `? https://youtu.be/J_gwhtU7FbU
+
+1:09 backcut
+
+1:20 different angle 
+
+1:54 steve nash feed
+
+2:26 shaq instinctual jumps
+
+3:04 back cut then alley hoop,
+`], 
+        ["6", "floater https://www.youtube.com/watch?v=pO-0KWntUO8&t=118s"],
+        ["7", `? https://www.youtube.com/watch?v=o8zQQi-uRfE&list=PLLMomzN4dxfA-pGcs6DAmW4zKIxJ3U49E&index=3
+
+0:56 driving full speed go to the corner
+
+1:25 carmerlo turn and shoot
+
+1:44 steal but Kobe got it around 
+
+6:08 amazing kobe move
+
+7:39 drive then pass it out`],
+        ["8", "carmelo, https://www.throughthelens.com/videos/clfwziia70001jz080x5z80ml"],
+        ["9", `? https://youtu.be/RWCgyreWyPY?si=pa9JfVgAfmffgaEY&t=613
+
+4:02 jump backwards
+
+9:00 walk into the shot
+
+10:13 cross then shot`],
+        ["10", `? https://youtu.be/SF_sYCJt6Y0
+
+1:50 great pull 
+
+2:27 dribble skip pull
+`],
+        ["11", "shooting"],
+        ["12", `? https://youtu.be/_-L4_gMYuPs
+
+1:20 drive back in then backboard
+`],
+        ["13", `undrafted rookie https://www.youtube.com/watch?v=s5nGKJDgOac`],
+        ["14", `? https://youtu.be/zkSHyZGWU-s
+
+1:15 reverse layup
+
+`]
+        ]);
+
+        const container = document.getElementById('imageContainer');
+        container.innerHTML = '';
+
+        function getYouTubeEmbedUrl(url) {
+            try {
+                const videoId = url.includes('youtu.be') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1].split('&')[0];
+                return `https://www.youtube.com/embed/${videoId}`;
+            } catch (error) {
+                console.error('Invalid YouTube URL:', url);
+                return '';
+            }
+        }
+
+        function createCaptionElement(key, url) {
+            const caption = document.createElement('div');
+            caption.className = 'caption';
+            if (url) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.textContent = `Item ${key}`;
+                caption.appendChild(link);
+            } else {
+                caption.textContent = `Item ${key}`;
+            }
+            return caption;
+        }
+
+        function highlightTextContent(element) {
+            // Toggle the highlight class
+            element.classList.toggle('highlight');
+        }
+
+        // Convert imageDictionary to an array and sort alphabetically by the second index
+        const sortedArray = Array.from(imageDictionary).sort((a, b) => {
+            const aValue = a[1].toLowerCase();
+            const bValue = b[1].toLowerCase();
+            return aValue.localeCompare(bValue);
+        });
+
+
+sortedArray.forEach(([key, value]) => {
+    console.log(`Processing item ${key}: ${value}`);
+    const wrapper = document.createElement('div');
+    let url = null;
+
+    if (value.endsWith('.png')) {
+        wrapper.className = 'image-wrapper';
+        const imgElement = document.createElement('img');
+        imgElement.src = value;
+        imgElement.alt = `Image ${key}`;
+        wrapper.appendChild(imgElement);
+    } else if (value.startsWith('https://') && (value.includes('youtube.com') || value.includes('youtu.be'))) {
+        wrapper.className = 'youtube-wrapper';
+        const iframeElement = document.createElement('iframe');
+        iframeElement.src = getYouTubeEmbedUrl(value);
+        iframeElement.frameBorder = 0;
+        iframeElement.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframeElement.allowFullscreen = true;
+        wrapper.appendChild(iframeElement);
+        url = value;
+    } else {
+        wrapper.className = 'text-content';
+
+        // Add <br> tags at timestamps (e.g., 0:56, 1:25, etc.)
+        const formattedValue = value.replace(/(\d{1,2}:\d{2})/g, '$1<br>');
+        wrapper.innerHTML = `<div>${formattedValue.trim()}</div>`;
+
+        const urlMatch = value.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+            url = urlMatch[0];
+        }
+    }
+
+    // Attach the highlight function to the click event for the wrapper
+    wrapper.onclick = () => highlightTextContent(wrapper);
+
+    const caption = createCaptionElement(key, url);
+    wrapper.appendChild(caption);
+    container.appendChild(wrapper);
+});
+
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+        setDocumentTitle();
+
+        $("#parseContent").click(function() {
+            $(".inner3").empty();
+            let output = "";
+            $("#imageContainer .text-content").each(function(index) {
+                let text = $(this).find('div').text().trim();
+                let captionIndex = index + 1;
+                output += `["${captionIndex}", "${text}"],\n`;
+            });
+            // Remove the trailing comma and newline
+            output = output.slice(0, -2);
+            $(".inner3").append("<pre>" + output + "</pre><br>");
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .image-wrapper, .video-wrapper, .youtube-wrapper {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .image-wrapper img, .video-wrapper video, .youtube-wrapper iframe {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .editable {
+            cursor: text;
+            background-color: #fff;
+        }
+        .highlight {
+            background-color: lightblue;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container" id="imageContainer">
+        <!-- Videos, Images, and editable text will be loaded here by JavaScript -->
+    </div>
+    
+    <button id="parseContent">Parse Content</button>
+
+    <div class="inner3">hello world</div>
+    <br><br><br>
+
+    <script>
+        const imageDictionary = new Map([
+            ["1", "back cut then alley hoop, https://youtu.be/J_gwhtU7FbU?si=A6t_zpIvxUGX3Q-e&t=184"],
+            ["2", "backward dribble shot, https://youtu.be/gG1xdukoq5M?si=R8Rw13eSReVMfsEI&t=530"],
+            ["3", "behind the back pass, https://youtu.be/J_gwhtU7FbU?si=V1eATI1FrhRm8kvo&t=190"]
+        ]);
+
+        const container = document.getElementById('imageContainer');
+        container.innerHTML = '';
+
+        function getYouTubeEmbedUrl(url) {
+            try {
+                const videoId = url.includes('youtu.be') ? url.split('youtu.be/')[1].split('?')[0] : url.split('v=')[1].split('&')[0];
+                return `https://www.youtube.com/embed/${videoId}`;
+            } catch (error) {
+                console.error('Invalid YouTube URL:', url);
+                return '';
+            }
+        }
+
+        function createCaptionElement(key, url) {
+            const caption = document.createElement('div');
+            caption.className = 'caption';
+            if (url) {
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.textContent = `Item ${key}`;
+                caption.appendChild(link);
+            } else {
+                caption.textContent = `Item ${key}`;
+            }
+            return caption;
+        }
+
+        function highlightTextContent(element) {
+            // Check if the clicked element is already highlighted
+            if (element.classList.contains('highlight')) {
+                // If it's already highlighted, do nothing
+                return;
+            }
+
+            // Add highlight to the clicked element
+            element.classList.add('highlight');
+        }
+
+        // Convert imageDictionary to an array and sort alphabetically by the second index
+        const sortedArray = Array.from(imageDictionary).sort((a, b) => {
+            const aValue = a[1].toLowerCase();
+            const bValue = b[1].toLowerCase();
+            return aValue.localeCompare(bValue);
+        });
+
+        sortedArray.forEach(([key, value]) => {
+            console.log(`Processing item ${key}: ${value}`);
+            const wrapper = document.createElement('div');
+            let url = null;
+
+            if (value.endsWith('.png')) {
+                wrapper.className = 'image-wrapper';
+                const imgElement = document.createElement('img');
+                imgElement.src = value;
+                imgElement.alt = `Image ${key}`;
+                wrapper.appendChild(imgElement);
+            } else if (value.startsWith('https://') && (value.includes('youtube.com') || value.includes('youtu.be'))) {
+                wrapper.className = 'youtube-wrapper';
+                const iframeElement = document.createElement('iframe');
+                iframeElement.src = getYouTubeEmbedUrl(value);
+                iframeElement.frameBorder = 0;
+                iframeElement.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+                iframeElement.allowFullscreen = true;
+                wrapper.appendChild(iframeElement);
+                url = value;
+            } else {
+                wrapper.className = 'text-content editable';
+                const textContent = document.createElement('div');
+                textContent.contentEditable = true;
+                textContent.textContent = value;
+                wrapper.appendChild(textContent);
+                const urlMatch = value.match(/https?:\/\/[^\s]+/);
+                if (urlMatch) {
+                    url = urlMatch[0];
+                }
+            }
+
+            wrapper.onclick = () => highlightTextContent(wrapper); // Add click event to highlight text-content
+            const caption = createCaptionElement(key, url);
+            wrapper.appendChild(caption);
+            container.appendChild(wrapper);
+        });
+
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+        setDocumentTitle();
+
+        $("#parseContent").click(function() {
+            $(".inner3").empty();
+            let output = "";
+            $("#imageContainer .text-content").each(function(index) {
+                let text = $(this).find('div[contenteditable="true"]').text().trim();
+                let captionIndex = index + 1;
+                output += `["${captionIndex}", "${text}"],\n`;
+            });
+            // Remove the trailing comma and newline
+            output = output.slice(0, -2);
+            $(".inner3").append("<pre>" + output + "</pre><br>");
+        });
+    </script>
+</body>
+</html>
