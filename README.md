@@ -12,6 +12,8 @@ A series of interesting and useful HTML wrappers that populate images, links, an
 
 
 
+01b-chess_board_notes.html has notes from a chess game
+
 13-queen_of_tears_youtube_embed.html : right and left arrow gets an embedded video with the link from Youtube
 
 15-peace_pad.html
@@ -25,3 +27,7 @@ In the folder: flashcards_html_js, you can upload a text file with a dictionary 
 
 
 16-read_content.html allows for: to load a file and then read line-by-line.
+
+
+
+**Basketball_links**: this allows 

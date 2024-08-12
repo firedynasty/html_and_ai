@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chessboard Example</title>
+    <link rel="stylesheet"
+          href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css"
+          integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+            integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"
+            integrity="sha384-8Vi8VHwn3vjQ9eUHUxex3JSN/NFqUg3QbPyX8kWyb93+8AC/pPWTzj+nHtbC5bxD"
+            crossorigin="anonymous"></script>
+    <style>
+        #board {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            margin: 20px auto;
+        }
+        #fenInput {
+            width: 90%;
+            padding: 10px;
+            margin: 20px auto;
+            font-size: 16px;
+            text-align: center;
+            display: block;
+            box-sizing: border-box;
+        }
+        #loadButton {
+            display: block;
+            width: 90%;
+            padding: 10px;
+            margin: 20px auto;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="board"></div>
+
+    <input type="text" id="fenInput" placeholder="Enter FEN string here">
+    <button id="loadButton">Load Position</button>
+    <div class="container" id="imageContainer"><div class="image-wrapper"><div class="text-content">notes here:<br>r2q1r2/pp4pk/4p1Np/2bn4/3pQ3/P6P/1PP2PP1/R3R1K1 b - - 3 22<br>r2q1r2/pp4pk/4pnNp/2b5/3pQ3/P6P/1PP2PP1/R3R1K1 w - - 4 23<br>r2q1N2/pp4pk/4pn1p/2b5/3pQ3/P6P/1PP2PP1/R3R1K1 b - - 0 23</div><div class="caption">Image 2</div></div></div>
+
+    <script>
+        // Initialize the board with draggable pieces
+        var board = Chessboard('board', {
+            position: 'start',
+            draggable: true,
+            dropOffBoard: 'snapback', // Pieces snap back to their original position if dropped off the board
+            onDragStart: function(source, piece, position, orientation) {
+                // Prevent illegal moves (e.g., moving the opponent's pieces)
+            },
+            onDrop: function(source, target, piece, newPos, oldPos, orientation) {
+                console.log("Piece dropped from " + source + " to " + target);
+            },
+            onSnapEnd: function() {
+                console.log("Snap ended");
+            }
+        });
+
+        // Event listener to load the position from FEN input
+        $('#loadButton').on('click', function() {
+            var fen = $('#fenInput').val();
+            loadPosition(fen);
+        });
+
+        // Function to load a FEN position
+        function loadPosition(fen) {
+            board.position(fen);
+        }
+
+        // Example FEN string to load initially
+        loadPosition('r1bqkbnr/pppppppp/n7/8/8/N7/PPPPPPPP/R1BQKBNR w KQkq - 0 1');
+
+        // Get the FEN strings from the text-content div
+        var fenStrings = document.querySelector('.text-content').innerHTML.split('<br>');
+        var fenIndex = 0;
+
+        // Function to load a FEN position on the board
+        function loadFen() {
+            if (fenIndex < fenStrings.length) {
+                board.position(fenStrings[fenIndex].trim());
+                fenIndex++;
+            } else {
+                fenIndex = 0; // Reset to first FEN string if end is reached
+                board.position(fenStrings[fenIndex].trim());
+            }
+        }
+
+        // Add click event listener to the imageContainer div
+        document.getElementById('imageContainer').addEventListener('click', loadFen);
+    </script>
+    
+</body>
+</html>
