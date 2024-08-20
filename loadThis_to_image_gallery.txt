@@ -1,0 +1,5 @@
+First=images/image1.png|Description of a new bird
+2=images/image2.png|This is another great picture taken on vacation
+3=images/image2.png|This is another great picture taken on vacation repeat1
+4=images/image2.png|This is another great picture taken on vacation repeat2
+5=images/image2.png|This is another great picture taken on vacation repeat3

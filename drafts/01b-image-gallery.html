@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .image-wrapper {
+    text-align: center;
+    margin-bottom: 20px;
+    height: 400px; /* Set a fixed height to avoid caption jumping */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.image-wrapper img {
+    max-width: 70%;
+    height: auto;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.5s ease-in-out; /* Smooth fade effect */
+}
+
+
+        .caption {
+            margin-top: 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .text-content {
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+            width: 100%;
+            box-sizing: border-box;
+            font-size: 24px;
+        }
+        .editable {
+            cursor: text;
+            background-color: #fff;
+        }
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .navigation-buttons button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .navigation-buttons button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .containerForCaption{
+            max-width: 600px;
+            margin: 0 auto;
+            border: 2px solid #007BFF;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #captionText {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="imageContainer">
+        <!-- Images and editable text will be loaded here by JavaScript -->
+    </div>
+    <div class="containerForCaption">
+        <div id="captionText">
+            This is the initial text in the div. It represents a paragraph or blog content that you might find on a website. This text can be changed dynamically using JavaScript.
+        </div>
+    </div>
+    <div class="navigation-buttons">
+        <button id="prevButton">Previous</button>
+        <button id="nextButton">Next</button>
+    </div>
+
+    <script>
+        const imageDictionary = new Map([
+            ["First", "images/image1.png"],
+            ["2", "images/image2.png"],
+            ["3", "images/image3.png"],
+        ]);
+
+        const imageDictionaryCaptions = new Map([
+            ["First", "Description of a bird"],
+            ["2", "This is a great picture taken on vacation"],
+            ["3", "Scenario #1"],
+        ]);
+
+        const container = document.getElementById('imageContainer');
+        const captionText = document.getElementById('captionText');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+
+        let currentIndex = 0;
+        const entries = Array.from(imageDictionary.entries());
+
+        function displayContent(index) {
+            // Clear existing content in the container
+            container.innerHTML = '';
+
+            // Get the current item
+            const [key, value] = entries[index];
+
+            // Create a wrapper div for the image/text
+            const wrapper = document.createElement('div');
+            wrapper.className = 'image-wrapper';
+
+            if (value.endsWith('.png')) {
+                // Create the img element
+                const imgElement = document.createElement('img');
+                imgElement.src = value;
+                imgElement.alt = `Image ${key}`;
+                wrapper.appendChild(imgElement);
+            } else {
+                // Create a text content element and make it editable
+                const textContent = document.createElement('div');
+                textContent.className = 'text-content editable';
+                textContent.contentEditable = true;
+                textContent.textContent = value;
+                wrapper.appendChild(textContent);
+            }
+
+            // Append the wrapper to the container
+            container.appendChild(wrapper);
+
+            // Update the caption text
+            const caption = imageDictionaryCaptions.get(key) || '';
+            captionText.textContent = caption;
+
+            // Update button states
+            prevButton.disabled = index === 0;
+            //nextButton.disabled = index === entries.length - 1;
+        }
+
+        // Event listeners for the buttons
+        prevButton.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayContent(currentIndex);
+            }
+        });
+
+        // nextButton.addEventListener('click', () => {
+        //     if (currentIndex < entries.length - 1) {
+        //         currentIndex++;
+        //         displayContent(currentIndex);
+        //     }
+        // });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex + 1) % entries.length;
+            displayContent(currentIndex);
+            console.log(currentIndex)
+            console.log('when does it reset?')
+        });
+
+        // Initial display
+        displayContent(currentIndex);
+
+        // Function to set the document title to the name of the HTML file
+        function setDocumentTitle() {
+            const url = window.location.href;
+            const filename = url.substring(url.lastIndexOf('/') + 1);
+            document.title = filename;
+        }
+
+        setDocumentTitle();
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.body.addEventListener("keydown", function(e) {
+                if (e.keyCode === 37) { // Left arrow key
+                    document.getElementById("prevButton").click();
+                    console.log('Left arrow pressed');
+                } else if (e.keyCode === 39) { // Right arrow key
+                    document.getElementById("nextButton").click();
+                    console.log('Right arrow pressed');
+                }
+            });
+        });
+
+        document.querySelector('.containerForCaption').addEventListener('click', function() {
+    // Get the text from the #captionText div
+    var captionText = document.getElementById('captionText').innerText;
+
+    // Create a temporary textarea element to copy the text to clipboard
+    var tempTextarea = document.createElement('textarea');
+    tempTextarea.value = captionText;
+
+    // Append the textarea to the body (required for copy command to work)
+    document.body.appendChild(tempTextarea);
+
+    // Select the text inside the textarea
+    tempTextarea.select();
+    tempTextarea.setSelectionRange(0, 99999); // For mobile devices
+
+    // Copy the text to the clipboard
+    document.execCommand('copy');
+
+    // Remove the temporary textarea from the document
+    document.body.removeChild(tempTextarea);
+
+    // Optional: Alert or notify the user that the text has been copied
+    alert('Text copied to clipboard: ' + captionText);
+});
+    </script>
+</body>
+</html>

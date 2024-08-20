@@ -28,6 +28,6 @@ In the folder: flashcards_html_js, you can upload a text file with a dictionary 
 
 16-read_content.html allows for: to load a file and then read line-by-line.
 
-
+17-image_gallery.html can dynamically change the image gallery with loading .txt file that has new image file names.  "loadThis_to_image_gallery.txt"
 
 **Basketball_links**: this allows 
